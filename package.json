@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.html",
   "scripts": {
+    "server": "nodemon server.js",
     "start": "nodemon index.js"
   },
   "repository": {
@@ -18,7 +19,18 @@
   },
   "homepage": "https://github.com/codesandbox-app/static-template#readme",
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "config": "^3.3.9",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "gravatar": "^1.8.2",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "mongoose": "^8.0.3",
+    "request": "^2.88.2"
+  }
 }
