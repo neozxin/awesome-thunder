@@ -41,9 +41,9 @@ const xServerUtils = (() => {
       this.routers.push(express.Router());
       return this.routers.slice(-1)[0];
     },
-    responseError(err, status = 500) {
+    responseError(res, err, status = 500) {
       if (status === 500) {
-        console.error(err?.message);
+        console.error(`Server Error [${Date()}]:`, err?.message);
         res.status(500).send("Server Error");
         return;
       }
@@ -61,6 +61,26 @@ const xServerUtils = (() => {
         console.error(err.message);
         process.exit(1);
       }
+    },
+    async jwtSign(payload) {
+      return new Promise((resolve, reject) => {
+        jwt.sign(
+          payload,
+          config.get("jwtSecret"),
+          { expiresIn: `${60}m` },
+          (err, token) => {
+            if (err) return reject(err);
+            resolve({ token });
+          },
+        );
+      });
+    },
+    async middlewareValidationResult(req, res, next) {
+      const errors = expressValidator.validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
     },
   };
 })();

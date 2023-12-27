@@ -3,7 +3,7 @@ const xServerUtils = require("../../config/xExpressUtil");
 const _ = require("lodash");
 
 const {
-  expressValidator: { check, validationResult },
+  expressValidator: { check },
   request,
   middlewareAuth,
 } = xServerUtils.xModules;
@@ -60,16 +60,11 @@ module.exports = xServerUtils
     "/",
     [
       middlewareAuth,
-      [
-        check("status", "Status is required").notEmpty(),
-        check("skills", "Skills is required").notEmpty(),
-      ],
+      check("status", "Status is required").notEmpty(),
+      check("skills", "Skills is required").notEmpty(),
+      xServerUtils.middlewareValidationResult,
     ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const {
         company,
         website,
@@ -137,12 +132,9 @@ module.exports = xServerUtils
       check("title", "Title is required").notEmpty(),
       check("company", "Company is required").notEmpty(),
       check("from", "From date is required").notEmpty(),
+      xServerUtils.middlewareValidationResult,
     ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const newExp = _.pick(req.body, [
         "title",
         "company",
@@ -184,12 +176,9 @@ module.exports = xServerUtils
       check("degree", "Degree is required").notEmpty(),
       check("fieldofstudy", "Field of study is required").notEmpty(),
       check("from", "From date is required").notEmpty(),
+      xServerUtils.middlewareValidationResult,
     ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const newEdu = _.pick(req.body, [
         "school",
         "degree",

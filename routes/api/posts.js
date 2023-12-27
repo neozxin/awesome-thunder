@@ -2,7 +2,7 @@ const xDBModels = require("../../models/index");
 const xServerUtils = require("../../config/xExpressUtil");
 
 const {
-  expressValidator: { check, validationResult },
+  expressValidator: { check },
   middlewareAuth,
 } = xServerUtils.xModules;
 
@@ -11,12 +11,12 @@ module.exports = xServerUtils
   // API: add post
   .post(
     "/",
-    [middlewareAuth, [check("text", "Text is required").notEmpty()]],
+    [
+      middlewareAuth,
+      check("text", "Text is required").notEmpty(),
+      xServerUtils.middlewareValidationResult,
+    ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       try {
         const user = await xDBModels.User.findById(req.user.id).select(
           "-password",
@@ -122,12 +122,12 @@ module.exports = xServerUtils
   // API: add post comment
   .post(
     "/comment/:id",
-    [middlewareAuth, [check("text", "Text is required").notEmpty()]],
+    [
+      middlewareAuth,
+      check("text", "Text is required").notEmpty(),
+      xServerUtils.middlewareValidationResult,
+    ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       try {
         const user = await xDBModels.User.findById(req.user.id).select(
           "-password",

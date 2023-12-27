@@ -2,10 +2,8 @@ const xDBModels = require("../../models/index");
 const xServerUtils = require("../../config/xExpressUtil");
 
 const {
-  expressValidator: { body, validationResult },
+  expressValidator: { body },
   bcrypt,
-  jwt,
-  config,
   middlewareAuth,
 } = xServerUtils.xModules;
 
@@ -28,12 +26,9 @@ module.exports = xServerUtils
     [
       body("email", "Please include a valid email").isEmail(),
       body("password", "Password is required").exists(),
+      xServerUtils.middlewareValidationResult,
     ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const { email, password } = req.body;
       try {
         const user = await xDBModels.User.findOne({ email });
@@ -43,16 +38,10 @@ module.exports = xServerUtils
             .status(400)
             .json({ errors: [{ msg: "Invalid Credentials" }] });
         }
-        const payload = { user: { id: user.id } };
-        jwt.sign(
-          payload,
-          config.get("jwtSecret"),
-          { expiresIn: `${60}m` },
-          (err, token) => {
-            if (err) throw err;
-            res.json({ token });
-          },
-        );
+        const resultJwtSign = await xServerUtils.jwtSign({
+          user: { id: user.id },
+        });
+        res.json(resultJwtSign);
       } catch (err) {
         xServerUtils.responseError(res, err);
       }

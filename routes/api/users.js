@@ -2,10 +2,8 @@ const xDBModels = require("../../models/index");
 const xServerUtils = require("../../config/xExpressUtil");
 
 const {
-  expressValidator: { body, validationResult },
+  expressValidator: { body },
   bcrypt,
-  jwt,
-  config,
 } = xServerUtils.xModules;
 
 const gravatar = require("gravatar");
@@ -23,12 +21,9 @@ module.exports = xServerUtils
           min: 6,
         },
       ),
+      xServerUtils.middlewareValidationResult,
     ],
     async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const { name, email, password } = req.body;
       try {
         let user = await xDBModels.User.findOne({ email });
@@ -42,16 +37,10 @@ module.exports = xServerUtils
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
         await user.save();
-        const payload = { user: { id: user.id } };
-        jwt.sign(
-          payload,
-          config.get("jwtSecret"),
-          { expiresIn: `${60}m` },
-          (err, token) => {
-            if (err) throw err;
-            res.json({ token });
-          },
-        );
+        const resultJwtSign = await xServerUtils.jwtSign({
+          user: { id: user.id },
+        });
+        res.json(resultJwtSign);
       } catch (err) {
         xServerUtils.responseError(res, err);
       }
